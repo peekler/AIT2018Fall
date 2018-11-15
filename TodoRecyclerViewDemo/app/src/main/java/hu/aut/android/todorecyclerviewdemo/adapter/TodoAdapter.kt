@@ -58,6 +58,14 @@ class TodoAdapter : RecyclerView.Adapter<TodoAdapter.ViewHolder>, TodoTochHelper
             )
         }
 
+        holder.cbDone.setOnClickListener {
+            todo.done=holder.cbDone.isChecked
+            Thread {
+                AppDatabase.getInstance(
+                    context).todoDao().updateTodo(todo)
+            }.start()
+        }
+
         holder.itemView.setOnClickListener{
             Toast.makeText(context, "HELLOO", Toast.LENGTH_LONG).show()
         }

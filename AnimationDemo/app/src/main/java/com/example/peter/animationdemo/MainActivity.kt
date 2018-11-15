@@ -14,8 +14,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val anim = AnimationUtils.loadAnimation(this, R.anim.push_anim)
+        val sendAnim = AnimationUtils.loadAnimation(this, R.anim.send_anim)
 
-        anim.setAnimationListener(object: Animation.AnimationListener{
+        anim.setAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationRepeat(animation: Animation?) {
 
             }
@@ -30,8 +31,11 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        btnAnim.setOnClickListener{
+        btnAnim.setOnClickListener {
             btnAnim.startAnimation(anim)
+        }
+        btnSendAnim.setOnClickListener {
+            tvMessage.startAnimation(sendAnim)
         }
 
     }
