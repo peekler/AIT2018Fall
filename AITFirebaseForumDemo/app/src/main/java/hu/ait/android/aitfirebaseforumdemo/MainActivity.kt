@@ -7,13 +7,21 @@ import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.*
+import hu.ait.android.aitfirebaseforumdemo.adapter.PostsAdapter
+import hu.ait.android.aitfirebaseforumdemo.data.Post
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+
+    private lateinit var postsAdapter: PostsAdapter
+    private lateinit var postsListener: ListenerRegistration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +40,51 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
 
         nav_view.setNavigationItemSelectedListener(this)
+
+        postsAdapter = PostsAdapter(this,
+            FirebaseAuth.getInstance().currentUser!!.uid)
+        val layoutManager = LinearLayoutManager(this)
+        layoutManager.reverseLayout = true
+        layoutManager.stackFromEnd = true
+        recyclerPosts.layoutManager = layoutManager
+        recyclerPosts.adapter = postsAdapter
+
+        initPosts()
+    }
+
+    fun initPosts() {
+        val db = FirebaseFirestore.getInstance()
+        val postsCollection = db.collection("posts")
+
+        postsListener = postsCollection.addSnapshotListener(object: EventListener<QuerySnapshot> {
+            override fun onEvent(querySnapshot: QuerySnapshot?, p1: FirebaseFirestoreException?) {
+                if (p1 != null) {
+                    Toast.makeText(this@MainActivity, "Error: ${p1.message}",
+                        Toast.LENGTH_LONG).show()
+                    return
+                }
+
+                for (docChange in querySnapshot!!.getDocumentChanges()) {
+                    when (docChange.type) {
+                        DocumentChange.Type.ADDED -> {
+                            val post = docChange.document.toObject(Post::class.java)
+                            postsAdapter.addPost(post, docChange.document.id)
+                        }
+                        DocumentChange.Type.MODIFIED -> {
+
+                        }
+                        DocumentChange.Type.REMOVED -> {
+                            postsAdapter.removePostByKey(docChange.document.id)
+                        }
+                    }
+                }
+            }
+        })
+    }
+
+    override fun onDestroy() {
+        postsListener.remove()
+        super.onDestroy()
     }
 
     override fun onBackPressed() {
