@@ -36,7 +36,11 @@ class CreatePostActivity : AppCompatActivity() {
         setContentView(R.layout.activity_create_post)
 
         btnSend.setOnClickListener {
-            uploadPost()
+            if (uploadBitmap != null) {
+                uploadPostWithImage()
+            } else {
+                uploadPost()
+            }
         }
 
         btnAttach.setOnClickListener {
@@ -85,13 +89,13 @@ class CreatePostActivity : AppCompatActivity() {
     }
 
 
-    private fun uploadPost() {
+    private fun uploadPost(imgUrl: String = "") {
         val post = Post(
             FirebaseAuth.getInstance().currentUser!!.uid,
             FirebaseAuth.getInstance().currentUser!!.displayName!!,
             etTitle.text.toString(),
             etBody.text.toString(),
-            ""
+            imgUrl
         )
 
         val postsCollections = FirebaseFirestore.getInstance().collection("posts")
@@ -136,7 +140,7 @@ class CreatePostActivity : AppCompatActivity() {
 
                 newImagesRef.downloadUrl.addOnCompleteListener(object: OnCompleteListener<Uri> {
                     override fun onComplete(task: Task<Uri>) {
-                        //uploadPost(task.result.toString())
+                        uploadPost(task.result.toString())
                     }
                 })
             }

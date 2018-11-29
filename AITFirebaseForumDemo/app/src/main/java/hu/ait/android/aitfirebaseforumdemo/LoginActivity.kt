@@ -40,6 +40,9 @@ class LoginActivity : AppCompatActivity() {
 
 
     fun registerClick(v: View) {
+        var a = 5/0
+        Log.d("tag","data $a")
+
         if (!isFormValid()) {
             return
         }

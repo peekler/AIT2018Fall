@@ -2,6 +2,7 @@ package hu.ait.android.aitfirebaseforumdemo.adapter
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import com.bumptech.glide.Glide
 import com.google.firebase.firestore.FirebaseFirestore
 import hu.ait.android.aitfirebaseforumdemo.R
 import hu.ait.android.aitfirebaseforumdemo.data.Post
@@ -39,6 +41,22 @@ class PostsAdapter(var context: Context, var uid:String) : RecyclerView.Adapter<
         holder.tvAuthor.text = post.author
         holder.tvTitle.text = post.title
         holder.tvBody.text = post.body
+
+        if (!TextUtils.isEmpty(post.imgUrl)) {
+            holder.ivPhoto.visibility = View.VISIBLE
+            Glide.with(context).load(post.imgUrl).into(holder.ivPhoto)
+        } else {
+            holder.ivPhoto.visibility = View.GONE
+        }
+
+        if (post.uid == uid) {
+            holder.btnDelete.visibility = View.VISIBLE
+            holder.btnDelete.setOnClickListener {
+                removePost(holder.adapterPosition)
+            }
+        } else {
+            holder.btnDelete.visibility = View.GONE
+        }
 
         setAnimation(holder.itemView, position)
     }
