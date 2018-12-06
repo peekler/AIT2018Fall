@@ -128,7 +128,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
 
 
         mMap.setOnMarkerClickListener {
-            Thread {
+            runOnUiThread() {
                 val geocoder = Geocoder(this@MapsActivity, Locale.getDefault())
 
                 var addrs: List<Address>? = geocoder.getFromLocation(
@@ -140,16 +140,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
                         ",\n" + addrs?.get(0)?.getAddressLine(2) +
                         ",\n" + addrs?.get(0)?.getAddressLine(3)
 
-                runOnUiThread {
-                    Toast.makeText(
-                        this@MapsActivity, addr,
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }.start()
-
-
-
+                Toast.makeText(
+                    this@MapsActivity, addr,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
 
             true
         }
